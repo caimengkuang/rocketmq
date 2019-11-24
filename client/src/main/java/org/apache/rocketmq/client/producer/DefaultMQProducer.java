@@ -68,6 +68,9 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
     protected final transient DefaultMQProducerImpl defaultMQProducerImpl;
 
     /**
+     *
+     * 生产者所属组，消息服务器在回查事务状态时会随机选择该组中任何一个生产者发起事务回查请求
+     *
      * Producer group conceptually aggregates all producer instances of exactly same role, which is particularly
      * important when transactional messages are involved.
      * </p>
@@ -86,16 +89,19 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * Number of queues to create per default topic.
+     * 默认主题在每一个Broker队列数量
      */
     private volatile int defaultTopicQueueNums = 4;
 
     /**
      * Timeout for sending messages.
+     * 发送默认超市时间
      */
     private int sendMsgTimeout = 3000;
 
     /**
      * Compress message body threshold, namely, message body larger than 4k will be compressed on default.
+     * 消息体超过该值则启用压缩，默认4k
      */
     private int compressMsgBodyOverHowmuch = 1024 * 4;
 
@@ -104,6 +110,8 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * </p>
      *
      * This may potentially cause message duplication which is up to application developers to resolve.
+     *
+     * 同步方式发送消息重试次数，默认2次，总共执行3次
      */
     private int retryTimesWhenSendFailed = 2;
 
@@ -660,7 +668,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
     }
 
     /**
-     * Search consume queue offset of the given time stamp.
+     * 根据时间戳查询偏移量
      *
      * @param mq Instance of MessageQueue
      * @param timestamp from when in milliseconds.
@@ -676,6 +684,8 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * Query maximum offset of the given message queue.
      *
      * This method will be removed in a certain version after April 5, 2020, so please do not use this method.
+     *
+     * 查找该消息队列中最大的偏移量
      *
      * @param mq Instance of MessageQueue
      * @return maximum offset of the given consume queue.
@@ -722,6 +732,8 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      *
      * This method will be removed in a certain version after April 5, 2020, so please do not use this method.
      *
+     * 根据消息偏移量查找消息
+     *
      * @param offsetMsgId message id
      * @return Message specified.
      * @throws MQBrokerException if there is any broker error.
@@ -741,11 +753,13 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      *
      * This method will be removed in a certain version after April 5, 2020, so please do not use this method.
      *
-     * @param topic message topic
-     * @param key message key index word
-     * @param maxNum max message number
-     * @param begin from when
-     * @param end to when
+     * 根据条件查询消息
+     *
+     * @param topic message topic           消息主题
+     * @param key message key index word    消息索引字段
+     * @param maxNum max message number     本次最多去处消息条数
+     * @param begin from when               开始时间
+     * @param end to when                   结束时间
      * @return QueryResult instance contains matched messages.
      * @throws MQClientException if there is any client error.
      * @throws InterruptedException if the thread is interrupted.
@@ -761,6 +775,8 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * Query message of the given message ID.
      *
      * This method will be removed in a certain version after April 5, 2020, so please do not use this method.
+     *
+     * 根据主题与消息ID查找消息
      *
      * @param topic Topic
      * @param msgId Message ID

@@ -200,10 +200,13 @@ public class MappedFile extends ReferenceResource {
         assert messageExt != null;
         assert cb != null;
 
+        // MappedFile当前写指针
         int currentPos = this.wrotePosition.get();
 
         if (currentPos < this.fileSize) {
+            // 通过slice()方法创建一个与MappedFile的共享内存区
             ByteBuffer byteBuffer = writeBuffer != null ? writeBuffer.slice() : this.mappedByteBuffer.slice();
+            // 设置position为当前指针
             byteBuffer.position(currentPos);
             AppendMessageResult result;
             if (messageExt instanceof MessageExtBrokerInner) {

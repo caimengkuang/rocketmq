@@ -1,23 +1,16 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE
+ * file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file
+ * to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.apache.rocketmq.common.message;
-
-import org.apache.rocketmq.common.UtilAll;
-import org.apache.rocketmq.common.sysflag.MessageSysFlag;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -30,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.rocketmq.common.UtilAll;
+import org.apache.rocketmq.common.sysflag.MessageSysFlag;
+
 public class MessageDecoder {
     public final static int MSG_ID_LENGTH = 8 + 8;
 
@@ -41,7 +37,7 @@ public class MessageDecoder {
     public final static int MESSAGE_MAGIC_CODE = -626843481;
     public static final char NAME_VALUE_SEPARATOR = 1;
     public static final char PROPERTY_SEPARATOR = 2;
-    public static final int PHY_POS_POSITION =  4 + 4 + 4 + 4 + 4 + 8;
+    public static final int PHY_POS_POSITION = 4 + 4 + 4 + 4 + 4 + 8;
     public static final int BODY_SIZE_POSITION = 4 // 1 TOTALSIZE
         + 4 // 2 MAGICCODE
         + 4 // 3 BODYCRC
@@ -59,17 +55,21 @@ public class MessageDecoder {
 
     public static String createMessageId(final ByteBuffer input, final ByteBuffer addr, final long offset) {
         input.flip();
+        // 16个字节长度
         input.limit(MessageDecoder.MSG_ID_LENGTH);
 
+        // 4个字节IP、4个字节端口
         input.put(addr);
+        // 8字节消息偏移量
         input.putLong(offset);
 
+        // bytes2string 将字节数组转换成字符串; string2bytes可以将字符串转换回16个字节的字节数组
         return UtilAll.bytes2string(input.array());
     }
 
     public static String createMessageId(SocketAddress socketAddress, long transactionIdhashCode) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(MessageDecoder.MSG_ID_LENGTH);
-        InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+        InetSocketAddress inetSocketAddress = (InetSocketAddress)socketAddress;
         byteBuffer.put(inetSocketAddress.getAddress().getAddress());
         byteBuffer.putInt(inetSocketAddress.getPort());
         byteBuffer.putLong(transactionIdhashCode);
@@ -98,7 +98,8 @@ public class MessageDecoder {
     /**
      * Just decode properties from msg buffer.
      *
-     * @param byteBuffer msg commit log buffer.
+     * @param byteBuffer
+     *            msg commit log buffer.
      */
     public static Map<String, String> decodeProperties(java.nio.ByteBuffer byteBuffer) {
         int topicLengthPosition = BODY_SIZE_POSITION + 4 + byteBuffer.getInt(BODY_SIZE_POSITION);
@@ -134,10 +135,10 @@ public class MessageDecoder {
     public static byte[] encode(MessageExt messageExt, boolean needCompress) throws Exception {
         byte[] body = messageExt.getBody();
         byte[] topics = messageExt.getTopic().getBytes(CHARSET_UTF8);
-        byte topicLen = (byte) topics.length;
+        byte topicLen = (byte)topics.length;
         String properties = messageProperties2String(messageExt.getProperties());
         byte[] propertiesBytes = properties.getBytes(CHARSET_UTF8);
-        short propertiesLength = (short) propertiesBytes.length;
+        short propertiesLength = (short)propertiesBytes.length;
         int sysFlag = messageExt.getSysFlag();
         byte[] newBody = messageExt.getBody();
         if (needCompress && (sysFlag & MessageSysFlag.COMPRESSED_FLAG) == MessageSysFlag.COMPRESSED_FLAG) {
@@ -203,7 +204,7 @@ public class MessageDecoder {
         byteBuffer.putLong(bornTimeStamp);
 
         // 10 BORNHOST
-        InetSocketAddress bornHost = (InetSocketAddress) messageExt.getBornHost();
+        InetSocketAddress bornHost = (InetSocketAddress)messageExt.getBornHost();
         byteBuffer.put(bornHost.getAddress().getAddress());
         byteBuffer.putInt(bornHost.getPort());
 
@@ -212,7 +213,7 @@ public class MessageDecoder {
         byteBuffer.putLong(storeTimestamp);
 
         // 12 STOREHOST
-        InetSocketAddress serverHost = (InetSocketAddress) messageExt.getStoreHost();
+        InetSocketAddress serverHost = (InetSocketAddress)messageExt.getStoreHost();
         byteBuffer.put(serverHost.getAddress().getAddress());
         byteBuffer.putInt(serverHost.getPort());
 
@@ -239,13 +240,13 @@ public class MessageDecoder {
         return byteBuffer.array();
     }
 
-    public static MessageExt decode(
-        java.nio.ByteBuffer byteBuffer, final boolean readBody, final boolean deCompressBody) {
+    public static MessageExt decode(java.nio.ByteBuffer byteBuffer, final boolean readBody,
+        final boolean deCompressBody) {
         return decode(byteBuffer, readBody, deCompressBody, false);
     }
 
-    public static MessageExt decode(
-        java.nio.ByteBuffer byteBuffer, final boolean readBody, final boolean deCompressBody, final boolean isClient) {
+    public static MessageExt decode(java.nio.ByteBuffer byteBuffer, final boolean readBody,
+        final boolean deCompressBody, final boolean isClient) {
         try {
 
             MessageExt msgExt;
@@ -322,7 +323,8 @@ public class MessageDecoder {
                     byteBuffer.get(body);
 
                     // uncompress body
-                    if (deCompressBody && (sysFlag & MessageSysFlag.COMPRESSED_FLAG) == MessageSysFlag.COMPRESSED_FLAG) {
+                    if (deCompressBody
+                        && (sysFlag & MessageSysFlag.COMPRESSED_FLAG) == MessageSysFlag.COMPRESSED_FLAG) {
                         body = UtilAll.uncompress(body);
                     }
 
@@ -334,7 +336,7 @@ public class MessageDecoder {
 
             // 16 TOPIC
             byte topicLen = byteBuffer.get();
-            byte[] topic = new byte[(int) topicLen];
+            byte[] topic = new byte[(int)topicLen];
             byteBuffer.get(topic);
             msgExt.setTopic(new String(topic, CHARSET_UTF8));
 
@@ -353,7 +355,7 @@ public class MessageDecoder {
             msgExt.setMsgId(msgId);
 
             if (isClient) {
-                ((MessageClientExt) msgExt).setOffsetMsgId(msgId);
+                ((MessageClientExt)msgExt).setOffsetMsgId(msgId);
             }
 
             return msgExt;
@@ -413,13 +415,13 @@ public class MessageDecoder {
     }
 
     public static byte[] encodeMessage(Message message) {
-        //only need flag, body, properties
+        // only need flag, body, properties
         byte[] body = message.getBody();
         int bodyLen = body.length;
         String properties = messageProperties2String(message.getProperties());
         byte[] propertiesBytes = properties.getBytes(CHARSET_UTF8);
-        //note properties length must not more than Short.MAX
-        short propertiesLength = (short) propertiesBytes.length;
+        // note properties length must not more than Short.MAX
+        short propertiesLength = (short)propertiesBytes.length;
         int sysFlag = message.getFlag();
         int storeSize = 4 // 1 TOTALSIZE
             + 4 // 2 MAGICCOD
@@ -484,7 +486,7 @@ public class MessageDecoder {
     }
 
     public static byte[] encodeMessages(List<Message> messages) {
-        //TO DO refactor, accumulate in one buffer, avoid copies
+        // TO DO refactor, accumulate in one buffer, avoid copies
         List<byte[]> encodedMessages = new ArrayList<byte[]>(messages.size());
         int allSize = 0;
         for (Message message : messages) {
@@ -502,7 +504,7 @@ public class MessageDecoder {
     }
 
     public static List<Message> decodeMessages(ByteBuffer byteBuffer) throws Exception {
-        //TO DO add a callback for processing,  avoid creating lists
+        // TO DO add a callback for processing, avoid creating lists
         List<Message> msgs = new ArrayList<Message>();
         while (byteBuffer.hasRemaining()) {
             Message msg = decodeMessage(byteBuffer);
