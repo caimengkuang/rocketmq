@@ -1475,7 +1475,9 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     public void putMessagePositionInfo(DispatchRequest dispatchRequest) {
+        // 根据消息主题、队列ID，先获取对应的ConumeQueue文件
         ConsumeQueue cq = this.findConsumeQueue(dispatchRequest.getTopic(), dispatchRequest.getQueueId());
+
         cq.putMessagePositionInfoWrapper(dispatchRequest);
     }
 
@@ -1883,6 +1885,7 @@ public class DefaultMessageStore implements MessageStore {
                     break;
                 }
 
+                // 返回reputFromOffset偏移量开始有效数据
                 SelectMappedBufferResult result = DefaultMessageStore.this.commitLog.getData(reputFromOffset);
                 if (result != null) {
                     try {
@@ -1958,6 +1961,7 @@ public class DefaultMessageStore implements MessageStore {
 
             while (!this.isStopped()) {
                 try {
+                    // 线程每执行一次任务推送休息1毫秒就尝试推送消息到消息消费队列和索引文件
                     Thread.sleep(1);
                     this.doReput();
                 } catch (Exception e) {
